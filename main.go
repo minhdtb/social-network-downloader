@@ -10,22 +10,18 @@ import (
 )
 
 type ClientRequest struct {
-	plugin int32
-	url    string
+	Plugin int32  `json:"plugin"`
+	Url    string `json:"url"`
 }
 
 type ClientResponse struct {
-	title     string
-	thumbnail string
-	videoUrl  string
+	Title     string `json:"title"`
+	Thumbnail string `json:"thumbnail"`
+	VideoUrl  string `json:"videoUrl"`
 }
 
 func main() {
 	e := echo.New()
-
-	e.Use(middleware.CSRFWithConfig(middleware.CSRFConfig{
-		TokenLookup: "header:X-XSRF-TOKEN",
-	}))
 
 	e.Use(middleware.GzipWithConfig(middleware.GzipConfig{
 		Level: 5,
@@ -44,14 +40,14 @@ func main() {
 			Timeout: time.Second * 10,
 		}
 
-		response, _ := netClient.Get(clientRequest.url)
+		response, _ := netClient.Get(clientRequest.Url)
 
 		c, _ := ioutil.ReadAll(response.Body)
 
 		content := string(c)
 
 		var plugin plugins.Plugin
-		if clientRequest.plugin == 0 {
+		if clientRequest.Plugin == 0 {
 			plugin = plugins.Facebook{}
 		} else {
 			plugin = plugins.Instagram{}
@@ -64,21 +60,21 @@ func main() {
 		var videoUrl = plugin.GetVideoUrl(content)
 
 		if title != nil {
-			clientResponse.title = *title
+			clientResponse.Title = *title
 		} else {
-			clientResponse.title = ""
+			clientResponse.Title = ""
 		}
 
 		if thumbnail != nil {
-			clientResponse.thumbnail = *thumbnail
+			clientResponse.Thumbnail = *thumbnail
 		} else {
-			clientResponse.thumbnail = ""
+			clientResponse.Thumbnail = ""
 		}
 
 		if videoUrl != nil {
-			clientResponse.videoUrl = *videoUrl
+			clientResponse.VideoUrl = *videoUrl
 		} else {
-			clientResponse.videoUrl = ""
+			clientResponse.VideoUrl = ""
 		}
 
 		return context.JSON(http.StatusOK, clientResponse)
