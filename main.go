@@ -1,9 +1,9 @@
 package main
 
 import (
-	"./plugins"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
+	"github.com/minhdtb/social-network-downloader/plugins"
 	"io/ioutil"
 	"net/http"
 	"time"

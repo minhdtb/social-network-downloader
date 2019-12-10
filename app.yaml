@@ -1,0 +1,14 @@
+version: '3'
+services:
+  server:
+    container_name: 'social-downloader-server'
+    hostname: 'social-downloader-server'
+    image: 'minhdtb/social-downloader-server:1.0'
+    restart: always
+    build:
+      context: .
+      dockerfile: Dockerfile
+    expose:
+      - 8080
+    ports:
+      - 80:8080
