@@ -1,6 +1,9 @@
 package plugins
 
-import "regexp"
+import (
+	"regexp"
+	"strings"
+)
 
 type Facebook struct {
 }
@@ -16,6 +19,14 @@ func (r Facebook) GetTitle(content string) *string {
 }
 
 func (r Facebook) GetThumbnail(content string) *string {
+	regex, _ := regexp.Compile(`property="og:image" content="([^"]+)"`)
+	match := regex.FindStringSubmatch(content)
+	if match != nil && len(match) > 1 {
+		var txt = match[1]
+		txt = strings.Replace(txt, "&amp;", "&", -1)
+		return &txt
+	}
+
 	return nil
 }
 
