@@ -15,6 +15,9 @@ type ClientRequest struct {
 }
 
 type ClientResponse struct {
+	Url       string `json:"url"`
+	Plugin    int32  `json:"plugin"`
+	Type      int32  `json:"type"`
 	Title     string `json:"title"`
 	Thumbnail string `json:"thumbnail"`
 	VideoUrl  string `json:"videoUrl"`
@@ -76,6 +79,10 @@ func main() {
 		} else {
 			clientResponse.VideoUrl = ""
 		}
+
+		clientResponse.Url = clientRequest.Url
+		clientResponse.Plugin = clientRequest.Plugin
+		clientResponse.Type = 0
 
 		return context.JSON(http.StatusOK, clientResponse)
 	})
