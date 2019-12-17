@@ -6,25 +6,65 @@ import (
 	"github.com/minhdtb/social-network-downloader/plugins"
 	"io/ioutil"
 	"net/http"
+	"regexp"
 	"time"
 )
 
 type ClientRequest struct {
-	Plugin int32  `json:"plugin"`
-	Url    string `json:"url"`
+	Url string `json:"url"`
 }
 
 type ClientResponse struct {
-	Url       string `json:"url"`
-	Plugin    int32  `json:"plugin"`
-	Type      int32  `json:"type"`
-	Title     string `json:"title"`
-	Thumbnail string `json:"thumbnail"`
-	VideoUrl  string `json:"videoUrl"`
+	Url         string `json:"url"`
+	Type        int32  `json:"type"`
+	Title       string `json:"title"`
+	Thumbnail   string `json:"thumbnail"`
+	VideoUrl    string `json:"videoUrl"`
+	ContentType int32  `json:"contentType"`
+}
+
+type PluginPattern struct {
+	Pattern string
+	Plugin  plugins.Plugin
+}
+
+var registerPlugins = []plugins.Plugin{
+	plugins.Facebook{},
+	plugins.Instagram{},
+}
+
+func getPatterns() []PluginPattern {
+	var patterns []PluginPattern
+
+	for _, plugin := range registerPlugins {
+		var patternStrings = plugin.GetPattern()
+		for _, patternString := range patternStrings {
+			patterns = append(patterns, PluginPattern{
+				Pattern: patternString,
+				Plugin:  plugin,
+			})
+		}
+	}
+
+	return patterns
+}
+
+func getPlugin(patterns []PluginPattern, url string) *plugins.Plugin {
+	for _, pattern := range patterns {
+		regex, _ := regexp.Compile(pattern.Pattern)
+		match := regex.MatchString(url)
+		if match {
+			return &pattern.Plugin
+		}
+	}
+
+	return nil
 }
 
 func main() {
 	e := echo.New()
+
+	var patterns = getPatterns()
 
 	e.Use(middleware.GzipWithConfig(middleware.GzipConfig{
 		Level: 5,
@@ -39,52 +79,49 @@ func main() {
 
 		_ = context.Bind(clientRequest)
 
-		var netClient = http.Client{
-			Timeout: time.Second * 10,
+		var plugin = getPlugin(patterns, clientRequest.Url)
+		if plugin != nil {
+			var netClient = http.Client{
+				Timeout: time.Second * 10,
+			}
+
+			response, _ := netClient.Get(clientRequest.Url)
+
+			c, _ := ioutil.ReadAll(response.Body)
+
+			content := string(c)
+
+			clientResponse := new(ClientResponse)
+
+			var title = (*plugin).GetTitle(content)
+			var thumbnail = (*plugin).GetThumbnail(content)
+			var videoUrl = (*plugin).GetVideoUrl(content)
+
+			if title != nil {
+				clientResponse.Title = *title
+			} else {
+				clientResponse.Title = ""
+			}
+
+			if thumbnail != nil {
+				clientResponse.Thumbnail = *thumbnail
+			} else {
+				clientResponse.Thumbnail = ""
+			}
+
+			if videoUrl != nil {
+				clientResponse.VideoUrl = *videoUrl
+			} else {
+				clientResponse.VideoUrl = ""
+			}
+
+			clientResponse.Url = clientRequest.Url
+			clientResponse.Type = 0
+
+			return context.JSON(http.StatusOK, clientResponse)
 		}
 
-		response, _ := netClient.Get(clientRequest.Url)
-
-		c, _ := ioutil.ReadAll(response.Body)
-
-		content := string(c)
-
-		var plugin plugins.Plugin
-		if clientRequest.Plugin == 0 {
-			plugin = plugins.Facebook{}
-		} else {
-			plugin = plugins.Instagram{}
-		}
-
-		clientResponse := new(ClientResponse)
-
-		var title = plugin.GetTitle(content)
-		var thumbnail = plugin.GetThumbnail(content)
-		var videoUrl = plugin.GetVideoUrl(content)
-
-		if title != nil {
-			clientResponse.Title = *title
-		} else {
-			clientResponse.Title = ""
-		}
-
-		if thumbnail != nil {
-			clientResponse.Thumbnail = *thumbnail
-		} else {
-			clientResponse.Thumbnail = ""
-		}
-
-		if videoUrl != nil {
-			clientResponse.VideoUrl = *videoUrl
-		} else {
-			clientResponse.VideoUrl = ""
-		}
-
-		clientResponse.Url = clientRequest.Url
-		clientResponse.Plugin = clientRequest.Plugin
-		clientResponse.Type = 0
-
-		return context.JSON(http.StatusOK, clientResponse)
+		return echo.NewHTTPError(http.StatusNotFound, "Unable to find plugin.")
 	})
 
 	e.GET("/", func(context echo.Context) error {

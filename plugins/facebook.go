@@ -15,6 +15,10 @@ func (r Facebook) GetPattern() []string {
 	}
 }
 
+func (r Facebook) GetType() int32 {
+	return 0
+}
+
 func (r Facebook) GetTitle(content string) *string {
 	regex, _ := regexp.Compile(`title id="pageTitle">(.+?)</title>`)
 	match := regex.FindStringSubmatch(content)
