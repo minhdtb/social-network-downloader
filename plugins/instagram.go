@@ -3,6 +3,12 @@ package plugins
 type Instagram struct {
 }
 
+func (r Instagram) GetPattern() []string {
+	return []string{
+		`(?:http:\/\/)?(?:www\.)?instagram\.com\/p\/`,
+	}
+}
+
 func (r Instagram) GetTitle(content string) *string {
 	return nil
 }

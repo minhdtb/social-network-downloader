@@ -8,6 +8,13 @@ import (
 type Facebook struct {
 }
 
+func (r Facebook) GetPattern() []string {
+	return []string{
+		`(?:http:\/\/)?(?:www\.)?facebook\.com\/([a-zA-Z0-9_.-]+)\/posts\/`,
+		`(?:http:\/\/)?(?:www\.)?facebook\.com\/([a-zA-Z0-9_.-]+)\/videos\/`,
+	}
+}
+
 func (r Facebook) GetTitle(content string) *string {
 	regex, _ := regexp.Compile(`title id="pageTitle">(.+?)</title>`)
 	match := regex.FindStringSubmatch(content)
@@ -22,9 +29,9 @@ func (r Facebook) GetThumbnail(content string) *string {
 	regex, _ := regexp.Compile(`property="og:image" content="([^"]+)"`)
 	match := regex.FindStringSubmatch(content)
 	if match != nil && len(match) > 1 {
-		var txt = match[1]
-		txt = strings.Replace(txt, "&amp;", "&", -1)
-		return &txt
+		var str = match[1]
+		str = strings.Replace(str, "&amp;", "&", -1)
+		return &str
 	}
 
 	return nil
