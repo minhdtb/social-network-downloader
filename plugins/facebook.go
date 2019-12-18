@@ -48,10 +48,12 @@ func (r Facebook) GetVideoUrl(content string) *string {
 		return &match1[1]
 	}
 
-	regex2, _ := regexp.Compile(`property="og:video" content="([^"]+)""`)
+	regex2, _ := regexp.Compile(`property="og:video" content="([^"]+)"`)
 	match2 := regex2.FindStringSubmatch(content)
 	if match2 != nil && len(match2) > 1 {
-		return &match2[1]
+		var str = match2[1]
+		str = strings.Replace(str, "&amp;", "&", -1)
+		return &str
 	}
 
 	return nil
