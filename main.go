@@ -23,9 +23,13 @@ type ClientResponse struct {
 	ContentType int32  `json:"contentType"`
 }
 
+type PatternResponse struct {
+	Values []PluginPattern `json:"values"`
+}
+
 type PluginPattern struct {
-	Pattern string
-	Plugin  plugins.Plugin
+	Pattern string         `json:"pattern"`
+	Plugin  plugins.Plugin `json:"-"`
 }
 
 var registerPlugins = []plugins.Plugin{
@@ -77,6 +81,12 @@ func main() {
 	e.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{
 		Format: "method=${method}, uri=${uri}, status=${status}\n",
 	}))
+
+	e.GET("/get-patterns", func(context echo.Context) error {
+		return context.JSON(http.StatusOK, PatternResponse{
+			Values: patterns,
+		})
+	})
 
 	e.POST("/get-content", func(context echo.Context) error {
 		clientRequest := new(ClientRequest)
