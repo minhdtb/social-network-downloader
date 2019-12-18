@@ -42,10 +42,16 @@ func (r Facebook) GetThumbnail(content string) *string {
 }
 
 func (r Facebook) GetVideoUrl(content string) *string {
-	regex, _ := regexp.Compile(`hd_src:"([^"]+)"`)
-	match := regex.FindStringSubmatch(content)
-	if match != nil && len(match) > 1 {
-		return &match[1]
+	regex1, _ := regexp.Compile(`hd_src:"([^"]+)"`)
+	match1 := regex1.FindStringSubmatch(content)
+	if match1 != nil && len(match1) > 1 {
+		return &match1[1]
+	}
+
+	regex2, _ := regexp.Compile(`property="og:video" content="([^"]+)""`)
+	match2 := regex2.FindStringSubmatch(content)
+	if match2 != nil && len(match2) > 1 {
+		return &match2[1]
 	}
 
 	return nil
