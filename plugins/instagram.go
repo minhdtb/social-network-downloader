@@ -31,7 +31,7 @@ type InstagramData struct {
 type Instagram struct {
 }
 
-func getData(content string) *ShortcodeMedia {
+func getInstagramData(content string) *ShortcodeMedia {
 	regex, _ := regexp.Compile(`window._sharedData = ((?s).*)};</script>`)
 	match := regex.FindStringSubmatch(content)
 	if match != nil && len(match) > 1 {
@@ -81,7 +81,7 @@ func (r Instagram) GetThumbnail(content string) *string {
 }
 
 func (r Instagram) GetVideoData(content string) *VideoData {
-	data := getData(content)
+	data := getInstagramData(content)
 	if data != nil {
 		if data.IsVideo {
 			return &VideoData{
