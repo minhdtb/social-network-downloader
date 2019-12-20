@@ -65,10 +65,6 @@ func getPlugin(patterns []PluginPattern, url string) *plugins.Plugin {
 	return nil
 }
 
-func getContentType(url string) int32 {
-	return 0
-}
-
 func main() {
 	e := echo.New()
 
@@ -109,7 +105,7 @@ func main() {
 
 			var title = (*plugin).GetTitle(content)
 			var thumbnail = (*plugin).GetThumbnail(content)
-			var videoUrl = (*plugin).GetVideoUrl(content)
+			var videoData = (*plugin).GetVideoData(content)
 
 			clientResponse.Type = (*plugin).GetType()
 
@@ -125,9 +121,9 @@ func main() {
 				clientResponse.Thumbnail = ""
 			}
 
-			if videoUrl != nil {
-				clientResponse.VideoUrl = *videoUrl
-				clientResponse.ContentType = getContentType(*videoUrl)
+			if videoData != nil {
+				clientResponse.VideoUrl = (*videoData).VideoUrl
+				clientResponse.ContentType = (*videoData).ContentType
 			} else {
 				clientResponse.VideoUrl = ""
 				clientResponse.ContentType = -1
