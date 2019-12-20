@@ -10,5 +10,5 @@ type Plugin interface {
 	GetType() int32
 	GetTitle(content string) *string
 	GetThumbnail(content string) *string
-	GetVideoUrl(content string) *VideoData
+	GetVideoData(content string) *VideoData
 }

@@ -41,7 +41,7 @@ func (r Facebook) GetThumbnail(content string) *string {
 	return nil
 }
 
-func (r Facebook) GetVideoUrl(content string) *VideoData {
+func (r Facebook) GetVideoData(content string) *VideoData {
 	regex1, _ := regexp.Compile(`hd_src:"([^"]+)"`)
 	match1 := regex1.FindStringSubmatch(content)
 	if match1 != nil && len(match1) > 1 {

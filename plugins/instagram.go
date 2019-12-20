@@ -80,7 +80,7 @@ func (r Instagram) GetThumbnail(content string) *string {
 	return nil
 }
 
-func (r Instagram) GetVideoUrl(content string) *VideoData {
+func (r Instagram) GetVideoData(content string) *VideoData {
 	data := getData(content)
 	if data != nil {
 		if data.IsVideo {
