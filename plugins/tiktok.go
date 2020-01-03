@@ -19,10 +19,13 @@ func (r Tiktok) GetType() int32 {
 }
 
 func (r Tiktok) GetTitle(content string) *string {
-	regex, _ := regexp.Compile(`property="og:title" content="([^"]+)"`)
-	match := regex.FindStringSubmatch(content)
-	if match != nil && len(match) > 1 {
-		return &match[1]
+	regex1, _ := regexp.Compile(`property="og:title" content="([^"]+)"`)
+	match1 := regex1.FindStringSubmatch(content)
+	regex2, _ := regexp.Compile(`property="og:description" content="([^"]+)"`)
+	match2 := regex2.FindStringSubmatch(content)
+	if match1 != nil && len(match1) > 1 && match2 != nil && len(match2) > 1 {
+		text := match1[1] + " | " + match2[1]
+		return &text
 	}
 
 	return nil

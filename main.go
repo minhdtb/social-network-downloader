@@ -92,11 +92,15 @@ func main() {
 
 		var plugin = getPlugin(patterns, clientRequest.Url)
 		if plugin != nil {
-			var netClient = http.Client{
+			var httpClient = http.Client{
 				Timeout: time.Second * 10,
 			}
 
-			response, _ := netClient.Get(clientRequest.Url)
+			req, _ := http.NewRequest("GET", clientRequest.Url, nil)
+			req.Header.Add("cache-control","no-cache")
+			req.Header.Add("user-agent","Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.88 Safari/537.36")
+
+			response, _ := httpClient.Do(req)
 
 			c, _ := ioutil.ReadAll(response.Body)
 
