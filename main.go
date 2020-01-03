@@ -35,6 +35,7 @@ type PluginPattern struct {
 var registerPlugins = []plugins.Plugin{
 	plugins.Facebook{},
 	plugins.Instagram{},
+	plugins.Tiktok{},
 }
 
 func getPatterns() []PluginPattern {
